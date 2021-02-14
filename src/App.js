@@ -16,16 +16,18 @@ function App() {
 
   return (
     <Container>
-      <h1 className="text-center">Web Rcon</h1>
-      <Button
-        className="float-right"
-        variant="light"
-        onClick={() => {
-          fetchPlayers(setPlayers);
-        }}
-      >
-        <FontAwesomeIcon icon={faRedoAlt} />
-      </Button>
+      <header>
+        <h1 className="text-center">Web Rcon</h1>
+        <Button
+          className="float-right"
+          variant="light"
+          onClick={() => {
+            fetchPlayers(setPlayers);
+          }}
+        >
+          <FontAwesomeIcon icon={faRedoAlt} />
+        </Button>
+      </header>
       <PlayerList
         players={players}
         setPlayers={setPlayers}
