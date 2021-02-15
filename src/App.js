@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { Container, Button } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRedoAlt } from "@fortawesome/free-solid-svg-icons";
+import { Container } from "react-bootstrap";
 import "./App.css";
+import Header from "./components/Header";
 import PlayerList from "./components/PlayerList";
 import fetchPlayers from "./helpers/fetchPlayers";
 import { kickPlayerAction, banPlayerAction } from "./helpers/playerActions";
@@ -16,18 +15,7 @@ function App() {
 
   return (
     <Container>
-      <header>
-        <h1 className="text-center">Web Rcon</h1>
-        <Button
-          className="float-right"
-          variant="light"
-          onClick={() => {
-            fetchPlayers(setPlayers);
-          }}
-        >
-          <FontAwesomeIcon icon={faRedoAlt} />
-        </Button>
-      </header>
+      <Header fetchPlayers={fetchPlayers} setPlayers={setPlayers} />
       <PlayerList
         players={players}
         setPlayers={setPlayers}
