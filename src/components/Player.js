@@ -3,7 +3,9 @@ import { Button } from "react-bootstrap";
 
 function Player({ player, setPlayers, kickPlayerAction }) {
   const kickPlayerHandler = () => {
-    kickPlayerAction(player, setPlayers);
+    if (window.confirm(`Are you sure you want to kick player ${player.name}`)) {
+      kickPlayerAction(player, setPlayers);
+    }
   };
   return (
     <tr>
