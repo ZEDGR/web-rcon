@@ -1,9 +1,8 @@
 import socket
-import time
 import re
 
-class RCON:
 
+class RCON:
     def __init__(
         self,
         host: str,
@@ -61,22 +60,22 @@ class RCON:
     #     return total_data
 
     def strip_colors(self, some_name):
-        some_name = some_name.replace('^^', '^')
-        some_name = some_name.replace('^0', '')
-        some_name = some_name.replace('^1', '')
-        some_name = some_name.replace('^2', '')
-        some_name = some_name.replace('^3', '')
-        some_name = some_name.replace('^4', '')
-        some_name = some_name.replace('^5', '')
-        some_name = some_name.replace('^6', '')
-        some_name = some_name.replace('^7', '')
-        some_name = some_name.replace('^8', '')
-        some_name = some_name.replace('^9', '')
+        some_name = some_name.replace("^^", "^")
+        some_name = some_name.replace("^0", "")
+        some_name = some_name.replace("^1", "")
+        some_name = some_name.replace("^2", "")
+        some_name = some_name.replace("^3", "")
+        some_name = some_name.replace("^4", "")
+        some_name = some_name.replace("^5", "")
+        some_name = some_name.replace("^6", "")
+        some_name = some_name.replace("^7", "")
+        some_name = some_name.replace("^8", "")
+        some_name = some_name.replace("^9", "")
 
         return some_name
 
     def replace_multi_occurences(self, string, char):
-        pattern = char + '{2,}'
+        pattern = char + "{2,}"
         string = re.sub(pattern, char, string)
         return string
 
@@ -85,17 +84,18 @@ class RCON:
         cmd = self.packet_prefix + cmd.encode()
         self.socket.sendto(cmd, (self.host, self.port))
         data, addr = self.socket.recvfrom(8192)
-        print('Data from socket as string: ' + str(data[10:]))
+        print("Data from socket as string:", str(data[10:]))
         data_str = data[10:].decode("utf-8", errors="ignore")
-        print('Data after decode: ' + data_str)
+        print("Data after decode:", data_str)
 
         return data_str
 
     def kick(self, player_num):
-        self.send('kick ' + player_num)
+        response = self.send(f"clientkick {player_num}")
+        return "EXE_PLAYERKICKED" in response
 
     def status(self):
-        status_str = self.send('status')
+        status_str = self.send("status")
         status_str = self.strip_colors(status_str)
 
         # for char in status_str:
@@ -104,53 +104,46 @@ class RCON:
         player_objects = []
 
         i = 0
-        for some_str in status_str.split('\n'):
+        for some_str in status_str.split("\n"):
             # print('Line %d - String: %s' % (i, some_str))
-            if 'map: ' in some_str:
+            if "map: " in some_str:
                 continue
-            elif 'num score' in some_str:
+            elif "num score" in some_str:
                 continue
-            elif some_str == '' or some_str == '\r' or some_str == ' ' or some_str == '\t':
+            elif some_str == "" or some_str == "\r" or some_str == " " or some_str == "\t":
                 continue
-            elif '--- ----- ---- ------ ---------------' in some_str:
+            elif "--- ----- ---- ------ ---------------" in some_str:
                 continue
 
             some_str = some_str.strip()
-            some_str = self.replace_multi_occurences(some_str, ' ')
-            player_parts = some_str.split(' ')
+            some_str = self.replace_multi_occurences(some_str, " ")
+            player_parts = some_str.split(" ")
             res_len = len(player_parts)
             if res_len < 9:
-                print('Error response is incomplete - HANDLE THIS!!!')
-                raise Exception('Error response is incomplete - HANDLE THIS!!!')
+                print("Error response is incomplete - HANDLE THIS!!!")
+                raise Exception("Error response is incomplete - HANDLE THIS!!!")
 
             player = {}
 
-            player['num'] = player_parts[0]
-            player['score'] = player_parts[1]
-            player['ping'] = player_parts[2]
+            player["num"] = player_parts[0]
+            player["score"] = player_parts[1]
+            player["ping"] = player_parts[2]
             guid = player_parts[3]
-            player['rate'] = player_parts[res_len - 1]
+            player["rate"] = player_parts[res_len - 1]
             qport = player_parts[res_len - 2]
-            player['address'] = player_parts[res_len - 3]
+            player["address"] = player_parts[res_len - 3]
             lastmsg = player_parts[res_len - 4]
 
-            player['name'] = ''
+            player["name"] = ""
             for j in range(4, res_len - 4):
                 if j == res_len - 5:
-                    player['name'] = player['name'] + player_parts[j]
+                    player["name"] = player["name"] + player_parts[j]
                 else:
-                    player['name'] = player['name'] + player_parts[j] + ' '
+                    player["name"] = player["name"] + player_parts[j] + " "
 
-            print('Located player line: |' + some_str + '|' )
+            print("Located player line: |" + some_str + "|")
 
             # i = i + 1
             player_objects.append(player)
 
         return player_objects
-
-
-class DAO:
-    """Data Access Object"""
-
-    # WIP
-    pass
