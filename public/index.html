@@ -13,11 +13,14 @@
             crossorigin="anonymous" />
 
         <style>
-            html,
+            [v-cloak] {
+                display: none;
+            }
+            /* html,
             body {
                 height: 100%;
                 width: 100%;
-            }
+            } */
 
             body {
                 display: -ms-flexbox;
@@ -60,7 +63,7 @@
         <title>Web Rcon</title>
     </head>
     <body class="text-center">
-        <div id="app">
+        <div id="app" v-cloak>
             <header>
                 <div class="row">
                     <div class="col-md-12">

@@ -11,7 +11,7 @@ const app = Vue.createApp({
       playerList: [],
     };
   },
-  mounted() {
+  created() {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios.defaults.xsrfCookieName = "XSRF-TOKEN";
     if (this.authToken) {
