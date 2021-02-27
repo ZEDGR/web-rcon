@@ -6,21 +6,35 @@ const app = Vue.createApp({
         "//" +
         location.hostname +
         (location.port ? ":" + location.port : ""),
-      rconPassword: "",
-      authToken: localStorage.getItem("authToken") || "",
+      username: "",
+      password: "",
+      authenticated: Cookies.get("csrf_access_token") ? true : false,
       playerList: [],
     };
   },
   created() {
-    axios.defaults.xsrfHeaderName = "X-CSRFToken";
-    axios.defaults.xsrfCookieName = "XSRF-TOKEN";
-    if (this.authToken) {
+    axios.defaults.withCredentials = true;
+    axios.interceptors.response.use(
+      (response) => {
+        return response;
+      },
+      (error) => {
+        if (error.response.status === 401) {
+          this.authenticated = false;
+          alert("Invalid username/password or session expired");
+        } else {
+          alert("An error occurred please try again later");
+        }
+        return error;
+      }
+    );
+    if (this.authenticated) {
       this.getPlayers();
     }
   },
   watch: {
-    authToken() {
-      if (this.authToken) {
+    authenticated() {
+      if (this.authenticated) {
         this.getPlayers();
       }
     },
@@ -29,34 +43,22 @@ const app = Vue.createApp({
     login(e) {
       e.preventDefault();
       axios
-        .post(`${this.urlhost}/login`, { rcon_password: this.rconPassword })
-        .then((response) => {
-          this.authToken = response.data.token;
-          localStorage.setItem("authToken", this.authToken);
+        .post(`${this.urlhost}/login`, {
+          username: this.username,
+          password: this.password,
         })
-        .catch((error) => {
-          if (error.response.status == 401) {
-            alert("Invalid Rcon Password");
-          } else {
-            console.log(error);
-            alert("An error occurred please try again later");
-          }
+        .then((response) => {
+          this.authenticated = response.data.authenticated;
         });
     },
     logout() {
-      localStorage.removeItem("authToken");
-      this.authToken = "";
+      axios.get(`${this.urlhost}/logout`);
+      this.authenticated = "";
     },
     getPlayers() {
-      axios
-        .get(`${this.urlhost}/players`)
-        .then((response) => {
-          this.playerList = response.data.players;
-        })
-        .catch((error) => {
-          console.log(error);
-          alert("An error occurred please try again later");
-        });
+      axios.get(`${this.urlhost}/players`).then((response) => {
+        this.playerList = response.data.players;
+      });
     },
     kickPlayer(player) {
       const msg = `Kick player ${player.name} ?`;
@@ -69,10 +71,6 @@ const app = Vue.createApp({
             } else {
               alert(`Player ${player.name} not found`);
             }
-          })
-          .catch((error) => {
-            console.log(error);
-            alert("An error occurred please try again later");
           });
       }
     },

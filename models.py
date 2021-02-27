@@ -1,5 +1,28 @@
 import socket
 import re
+from app import db
+from datetime import datetime
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
+
+
+class User(db.Model):
+    """
+    User Model Class
+    """
+
+    __tablename__ = "user"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password, method="sha512")
 
 
 class RCON:
@@ -110,7 +133,12 @@ class RCON:
                 continue
             elif "num score" in some_str:
                 continue
-            elif some_str == "" or some_str == "\r" or some_str == " " or some_str == "\t":
+            elif (
+                some_str == ""
+                or some_str == "\r"
+                or some_str == " "
+                or some_str == "\t"
+            ):
                 continue
             elif "--- ----- ---- ------ ---------------" in some_str:
                 continue
