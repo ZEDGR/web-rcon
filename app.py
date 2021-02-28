@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from dotenv import find_dotenv
 import os
 import click
+from getpass import getpass
 from datetime import timedelta
 
 load_dotenv(find_dotenv())
@@ -57,7 +58,7 @@ def create_app():
 
     @app.cli.command("createuser")
     @click.argument("username")
-    @click.argument("password")
+    @click.password_option()
     def create_user(username, password):
         user = User(username=username)
         user.set_password(password)
