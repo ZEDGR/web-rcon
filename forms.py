@@ -30,7 +30,7 @@ class PlayerKickForm(FlaskForm):
 class PlayerBanForm(FlaskForm):
     address = TextField("address", [DataRequired(), IPAddress()])
     name = TextField("name", [DataRequired()])
-    num = IntegerField("num", [DataRequired()])
+    num = TextField("num", [DataRequired()])
 
     class Meta:
         csrf = False
