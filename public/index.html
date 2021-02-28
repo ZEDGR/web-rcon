@@ -16,11 +16,7 @@
             [v-cloak] {
                 display: none;
             }
-
             body {
-                align-items: center;
-                -webkit-box-pack: center;
-                justify-content: center;
                 padding-bottom: 40px;
                 background-color: #e9e6e6;
             }
@@ -51,71 +47,73 @@
         </style>
         <title>Web Rcon</title>
     </head>
-    <body class="text-center">
-        <div id="app" v-cloak>
-            <header>
-                <div class="row">
-                    <div class="col-6 mx-auto">
-                        <img class="mb-4 mt-4" src="https://www.rustadmin.com/img/logoRustadmin.png" alt="main_logo" width="72" height="72">
-                        <h1 class="h3 mb-3 font-weight-normal">Web Rcon</h1>
+    <body>
+        <div id="app" class="row" v-cloak>
+            <div class="col-10 mx-auto w-auto">
+                <header>
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <img class="mb-4 mt-4" src="https://www.rustadmin.com/img/logoRustadmin.png" alt="main_logo" width="72" height="72">
+                            <h1 class="h3 mb-3 font-weight-normal">Web Rcon</h1>
+                        </div>
                     </div>
-                </div>
+                    <div class="row" v-if="authenticated">
+                        <div class="col-12 clearfix">
+                            <button class="btn btn-light mb-2 mr-2" title="Refresh Player List" @click="getPlayers()">Refresh <i class="fa fa-redo-alt"></i></button>
+                            <button class="btn btn-light mb-2" title="Logout" @click="logout()">Logout <i class="fas fa-sign-out-alt"></i></button>
+                        </div>
+                    </div>
+                </header>
                 <div class="row" v-if="authenticated">
-                    <div class="col-6 mx-auto">
-                        <button class="btn btn-light float-right mb-2" @click="logout()">Logout <i class="fas fa-sign-out-alt"></i></button>
-                        <button class="btn btn-light float-right mb-2 mr-2" @click="getPlayers()">Refresh <i class="fa fa-redo-alt"></i></button>
+                    <div class="col-12">
+                        <table class="table table-bordered table-striped table-hover text-center">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col" colspan="2">Actions</th>
+                                    <th scope="col" class="d-none d-sm-table-cell">ID</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Score</th>
+                                    <th scope="col">IP</th>
+                                    <th scope="col" class="d-none d-sm-table-cell">Port</th>
+                                    <th scope="col" class="d-none d-sm-table-cell">Rate</th>
+                                    <th scope="col" class="d-none d-sm-table-cell">Ping</th>
+                                </tr>
+                            </thead>
+                            <tbody v-if="playerList.length">
+                                <tr v-for="player in playerList" :key="player.name">
+                                    <td><a href="#" class="text-danger" title="Kick Player" @click="kickPlayer(player)"><i class="fa fa-user-times"></i></a></td>
+                                    <td><a href="#" class="text-dark" title="Ban Player" @click="banPlayer(player)"><i class="fa fa-gavel"></i></a></td>
+                                    <th scope="row" class="d-none d-sm-table-cell">{{ player.num }}</th>
+                                    <td>{{ player.name }}</td>
+                                    <td>{{ player.score }}</td>
+                                    <td>{{ player.address }}</td>
+                                    <td class="d-none d-sm-table-cell">{{ player.port }}</td>
+                                    <td class="d-none d-sm-table-cell">{{ player.rate }}</td>
+                                    <td class="d-none d-sm-table-cell">{{ player.ping }}</td>
+                                </tr>
+                            </tbody>
+                            <tbody v-else>
+                                <tr>
+                                    <td colspan="9">No Players Online</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </header>
-            <div class="row" v-if="authenticated">
-                <div class="col-6 mx-auto">
-                    <table class="table table-bordered table-striped table-hover">
-                        <thead class="thead-light">
-                            <tr class="text-center">
-                                <th scope="col">ID</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Score</th>
-                                <th scope="col">IP</th>
-                                <th scope="col">Port</th>
-                                <th scope="col">Rate</th>
-                                <th scope="col">Ping</th>
-                                <th scope="col" colspan="2">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody v-if="playerList.length">
-                            <tr class="text-center" v-for="player in playerList" :key="player.name">
-                                <th scope="row">{{ player.num }}</th>
-                                <td>{{ player.name }}</td>
-                                <td>{{ player.score }}</td>
-                                <td>{{ player.address }}</td>
-                                <td>{{ player.port }}</td>
-                                <td>{{ player.rate }}</td>
-                                <td>{{ player.ping }}</td>
-                                <td><a href="#" class="text-danger" title="Kick Player" @click="kickPlayer(player)"><i class="fa fa-user-times"></i></a></td>
-                                <td><a href="#" class="text-dark" title="Ban Player" @click="banPlayer(player)"><i class="fa fa-gavel"></i></a></td>
-                            </tr>
-                        </tbody>
-                        <tbody v-else>
-                            <tr>
-                                <td colspan="7">No Players Online</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="row" v-else>
+                    <form class="form-signin" @submit="login">
+                        <div class="form-group">
+                            <label for="username" class="sr-only">Username</label>
+                            <input type="text" id="username" class="form-control" placeholder="Username" v-model="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="sr-only">Password</label>
+                            <input type="password" id="password" class="form-control" placeholder="Password" v-model="password" required>
+                        </div>
+                        <button class="btn btn-lg btn-primary btn-block mt-10" type="submit">Login</button>
+                        <p class="mt-5 mb-3 text-muted">&copy; 2021</p>
+                    </form>
                 </div>
-            </div>
-            <div class="row" v-else>
-                <form class="form-signin" @submit="login">
-                    <div class="form-group">
-                        <label for="username" class="sr-only">Username</label>
-                        <input type="text" id="username" class="form-control" placeholder="Username" v-model="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="password" class="sr-only">Password</label>
-                        <input type="password" id="password" class="form-control" placeholder="Password" v-model="password" required>
-                    </div>
-                    <button class="btn btn-lg btn-primary btn-block mt-10" type="submit">Login</button>
-                    <p class="mt-5 mb-3 text-muted">&copy; 2021</p>
-                </form>
             </div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js" integrity="sha512-Meww2sXqNHxI1+5Dyh/9KAtvI9RZSA4c1K2k5iL02oiPO/RH3Q30L3M1albtqMg50u4gRTYdV4EXOQqXEI336A==" crossorigin="anonymous"></script>
