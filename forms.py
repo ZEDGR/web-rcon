@@ -1,11 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import TextField
 from wtforms import PasswordField
-from wtforms import IntegerField
 from wtforms.validators import DataRequired
 from wtforms.validators import ValidationError
 from wtforms.validators import IPAddress
-import ipaddress
 
 
 class LoginForm(FlaskForm):
