@@ -71,6 +71,7 @@ const app = Vue.createApp({
           .then((response) => {
             if (response.data.success) {
               alert(`Player ${player.name} has been kicked from the server`);
+              this.getPlayers();
             } else {
               alert(`Player ${player.name} not found`);
             }
@@ -89,6 +90,7 @@ const app = Vue.createApp({
           .then((response) => {
             if (response.data.success) {
               alert(`Player ${player.name} has been banned from the server`);
+              this.getPlayers();
             } else {
               alert(`Player ${player.name} not found`);
             }

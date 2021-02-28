@@ -66,9 +66,9 @@ def get_players():
         players = rcon.status()
     except Exception as e:
         print(str(e))
-        return jsonify({"error": "game server connection error"}), 500
+        return jsonify(error="game server connection error"), 500
     else:
-        return jsonify({"players": players}), 200
+        return jsonify(players=players), 200
 
 
 @app.route("/playerkick", methods=["POST"])
@@ -81,10 +81,10 @@ def player_kick():
             status = rcon.kick(form.data["num"])
         except Exception as e:
             print(str(e))
-            return jsonify({"error": "error on player kick operation"}), 500
+            return jsonify(error="error on player kick operation"), 500
         else:
-            return jsonify({"success": status}), 204
-    return jsonify({"errors": form.errors}), 400
+            return jsonify(success=status), 200
+    return jsonify(errors=form.errors), 400
 
 
 @app.route("/playerban", methods=["POST"])
@@ -101,7 +101,7 @@ def player_ban():
 
         if ban_rec:
             print("Player IP is already banned in database! Check IPtables conf")
-            return jsonify({"error": "Ban command failed on system level"}), 500
+            return jsonify(error="Ban command failed on system level"), 500
 
         print(f"Will BAN IP: {player_ip} - Player: {player_name}")
         proc = subprocess.run(
@@ -124,7 +124,7 @@ def player_ban():
 
         if proc.returncode != 0:
             print("Ban command failed! - Improve logging here")
-            return jsonify({"error": "Ban command failed on system level"}), 500
+            return jsonify(error="Ban command failed on system level"), 500
 
         rcon = RCON(SERVER_HOST, SERVER_PORT, RCON_PASSWORD)
         rcon.kick(player_num)
@@ -137,4 +137,4 @@ def player_ban():
 
         return jsonify(success=True), 200
 
-    return jsonify({"errors": form.errors}), 400
+    return jsonify(errors=form.errors), 400
