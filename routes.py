@@ -108,7 +108,7 @@ def player_ban():
             [
                 "sudo",
                 "iptables",
-                "-A",
+                "-I",
                 "DOCKER-USER",
                 "-s",
                 player_ip,
