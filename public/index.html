@@ -62,8 +62,8 @@
                 </div>
                 <div class="row" v-if="authenticated">
                     <div class="col-6 mx-auto">
-                        <button class="btn btn-light float-right mb-2" @click="logout()"><i class="fas fa-sign-out-alt"></i></button>
-                        <button class="btn btn-light float-right mb-2 mr-2" @click="getPlayers()"><i class="fa fa-redo-alt"></i></button>
+                        <button class="btn btn-light float-right mb-2" @click="logout()">Logout <i class="fas fa-sign-out-alt"></i></button>
+                        <button class="btn btn-light float-right mb-2 mr-2" @click="getPlayers()">Refresh <i class="fa fa-redo-alt"></i></button>
                     </div>
                 </div>
             </header>
@@ -91,8 +91,8 @@
                                 <td>{{ player.port }}</td>
                                 <td>{{ player.rate }}</td>
                                 <td>{{ player.ping }}</td>
-                                <td><a href="#" class="text-danger" @click="kickPlayer(player)"><i class="fa fa-user-times"></i></a></td>
-                                <td><a href="#" class="text-dark" @click="banPlayer(player)"><i class="fa fa-gavel"></i></a></td>
+                                <td><a href="#" class="text-danger" title="Kick Player" @click="kickPlayer(player)"><i class="fa fa-user-times"></i></a></td>
+                                <td><a href="#" class="text-dark" title="Ban Player" @click="banPlayer(player)"><i class="fa fa-gavel"></i></a></td>
                             </tr>
                         </tbody>
                         <tbody v-else>
