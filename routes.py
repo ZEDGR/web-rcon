@@ -9,10 +9,12 @@ from forms import PlayerBanForm
 from flask import send_file
 from models import User
 from models import RCON
+from models import PlayerBan
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import set_access_cookies
 from flask_jwt_extended import unset_access_cookies
 from flask_jwt_extended import jwt_required
+import subprocess
 
 app = create_app()
 
@@ -86,7 +88,47 @@ def player_kick():
 
 @app.route("/playerban", methods=["POST"])
 @jwt_required()
-def player_ban(player_ip):
-    # TODO create form for validation
+def player_ban():
+    form = PlayerBanForm()
+
+    if form.validate_on_submit():
+        username = form.data.get('username', '')
+        player_ip = form.data['player_ip']
+
+        ban_rec = PlayerBan.query.filter_by(ip=player_ip).first()
+
+        if ban_rec:
+            print('Player IP is already banned in database! Check IPtables conf')
+            return jsonify({'error': 'Ban command failed on system level'}), 500
+
+        print('Will BAN IP: ' + player_ip + ' - User: ' + username)
+        proc = subprocess.run(
+            [
+                "sudo",
+                "iptables",
+                "-A",
+                "DOCKER-USER",
+                "-s",
+                player_ip,
+                "-j",
+                "DROP",
+                "-m",
+                "comment",
+                "--comment",
+                "CoD2 Server: " + username
+            ],
+            stdout=subprocess.DEVNULL
+        )
+
+        if proc.returncode != 0:
+            print('Ban command failed! - Improve logging here')
+            return jsonify({'error': 'Ban command failed on system level'}), 500
+
+        player_ban = PlayerBan(username=username, ip=player_ip, banned_by='FMM') 
+        db.session.add(player_ban)
+        db.session.commit()
+ 
+    return jsonify({"errors": form.errors}), 400
+
     print(player_ip)
     return jsonify({}), 204

@@ -32,12 +32,12 @@ def create_app():
 
     RCON_PASSWORD = os.getenv("RCON_PASSWORD", None)
     if not RCON_PASSWORD:
-        raise Exception("Generic exception about missing HOST value")
+        raise Exception("Generic exception about missing RCON_PASSWORD value")
 
     SERVER_HOST = os.getenv("SERVER_HOST", None)
 
     if not SERVER_HOST:
-        raise Exception("Generic exception about missing HOST value")
+        raise Exception("Generic exception about missing SERVER_HOST value")
 
     SERVER_PORT = int(os.getenv("SERVER_PORT", 28960))
 
