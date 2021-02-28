@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from dotenv import find_dotenv
 import os
 import click
-from getpass import getpass
 from datetime import timedelta
 
 load_dotenv(find_dotenv())
