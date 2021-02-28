@@ -29,11 +29,14 @@ class User(db.Model):
 
 
 class PlayerBan(db.Model):
+    """
+    Player Ban Model Class
+    """
 
     __tablename__ = "playerban"
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(120), unique=False, nullable=True)
+    name = db.Column(db.String(120), unique=False, nullable=True)
     ip = db.Column(db.String(12), unique=True, nullable=False)
     date_of_ban = db.Column(db.DateTime, default=datetime.utcnow)
     banned_by = db.Column(db.String(120), unique=False, nullable=False)
@@ -123,7 +126,7 @@ class RCON:
             guid = player_parts[3]
             player["rate"] = player_parts[res_len - 1]
             qport = player_parts[res_len - 2]
-            player["address"] = player_parts[res_len - 3]
+            player["address"], player["port"] = player_parts[res_len - 3].split(":")
             lastmsg = player_parts[res_len - 4]
 
             player["name"] = ""

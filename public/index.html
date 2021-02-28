@@ -76,6 +76,7 @@
                                 <th scope="col">Name</th>
                                 <th scope="col">Score</th>
                                 <th scope="col">IP</th>
+                                <th scope="col">Port</th>
                                 <th scope="col">Rate</th>
                                 <th scope="col">Ping</th>
                                 <th scope="col" colspan="2">Actions</th>
@@ -87,6 +88,7 @@
                                 <td>{{ player.name }}</td>
                                 <td>{{ player.score }}</td>
                                 <td>{{ player.address }}</td>
+                                <td>{{ player.port }}</td>
                                 <td>{{ player.rate }}</td>
                                 <td>{{ player.ping }}</td>
                                 <td><a href="#" class="text-danger" @click="kickPlayer(player)"><i class="fa fa-user-times"></i></a></td>

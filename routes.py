@@ -14,6 +14,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import set_access_cookies
 from flask_jwt_extended import unset_access_cookies
 from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity
 import subprocess
 
 app = create_app()
@@ -77,7 +78,7 @@ def player_kick():
     if form.validate_on_submit():
         try:
             rcon = RCON(SERVER_HOST, SERVER_PORT, RCON_PASSWORD)
-            status = rcon.kick(form.data["player_num"])
+            status = rcon.kick(form.data["num"])
         except Exception as e:
             print(str(e))
             return jsonify({"error": "error on player kick operation"}), 500
@@ -92,16 +93,17 @@ def player_ban():
     form = PlayerBanForm()
 
     if form.validate_on_submit():
-        username = form.data.get('username', '')
-        player_ip = form.data['player_ip']
+        player_name = form.name.data
+        player_ip = form.address.data
+        player_num = form.num.data
 
         ban_rec = PlayerBan.query.filter_by(ip=player_ip).first()
 
         if ban_rec:
-            print('Player IP is already banned in database! Check IPtables conf')
-            return jsonify({'error': 'Ban command failed on system level'}), 500
+            print("Player IP is already banned in database! Check IPtables conf")
+            return jsonify({"error": "Ban command failed on system level"}), 500
 
-        print('Will BAN IP: ' + player_ip + ' - User: ' + username)
+        print(f"Will BAN IP: {player_ip} - Player: {player_name}")
         proc = subprocess.run(
             [
                 "sudo",
@@ -115,20 +117,24 @@ def player_ban():
                 "-m",
                 "comment",
                 "--comment",
-                "CoD2 Server: " + username
+                f"CoD2 Server: {player_name}",
             ],
-            stdout=subprocess.DEVNULL
+            stdout=subprocess.DEVNULL,
         )
 
         if proc.returncode != 0:
-            print('Ban command failed! - Improve logging here')
-            return jsonify({'error': 'Ban command failed on system level'}), 500
+            print("Ban command failed! - Improve logging here")
+            return jsonify({"error": "Ban command failed on system level"}), 500
 
-        player_ban = PlayerBan(username=username, ip=player_ip, banned_by='FMM') 
+        rcon = RCON(SERVER_HOST, SERVER_PORT, RCON_PASSWORD)
+        rcon.kick(player_num)
+
+        player_ban = PlayerBan(
+            name=player_name, ip=player_ip, banned_by=get_jwt_identity()
+        )
         db.session.add(player_ban)
         db.session.commit()
 
-        return jsonify({}), 204
- 
-    return jsonify({"errors": form.errors}), 400
+        return jsonify(success=True), 200
 
+    return jsonify({"errors": form.errors}), 400

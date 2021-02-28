@@ -1,7 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import TextField, PasswordField
+from wtforms import TextField
+from wtforms import PasswordField
+from wtforms import IntegerField
 from wtforms.validators import DataRequired
 from wtforms.validators import ValidationError
+from wtforms.validators import IPAddress
 import ipaddress
 
 
@@ -14,7 +17,7 @@ class LoginForm(FlaskForm):
 
 
 class PlayerKickForm(FlaskForm):
-    player_num = TextField("Player Number", [DataRequired()])
+    num = TextField("Player Number", [DataRequired()])
 
     def validate_player_num(form, field):
         if not field.data.isnumeric():
@@ -25,14 +28,15 @@ class PlayerKickForm(FlaskForm):
 
 
 class PlayerBanForm(FlaskForm):
-    username = TextField("username")
-    player_ip = TextField("player_ip", [DataRequired()])
+    address = TextField("address", [DataRequired(), IPAddress()])
+    name = TextField("name", [DataRequired()])
+    num = IntegerField("num", [DataRequired()])
 
-    def validate_player_ip(form, field):
-        try:
-            ipaddress.ip_address(field.data)
-        except ValueError as e:
-            raise ValidationError("Invalid Player IP")
+    # def validate_address(form, field):
+    #     try:
+    #         ipaddress.ip_address(field.data)
+    #     except ValueError:
+    #         raise ValidationError("Invalid Player IP")
 
     class Meta:
         csrf = False

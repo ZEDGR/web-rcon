@@ -14,6 +14,9 @@ const app = Vue.createApp({
   },
   created() {
     axios.defaults.withCredentials = true;
+    axios.defaults.headers.post["X-CSRF-TOKEN"] = Cookies.get(
+      "csrf_access_token"
+    );
     axios.interceptors.response.use(
       (response) => {
         return response;
@@ -64,7 +67,7 @@ const app = Vue.createApp({
       const msg = `Kick player ${player.name} ?`;
       if (confirm(msg)) {
         axios
-          .post(`${this.urlhost}/playerkick`, { player_num: player.num })
+          .post(`${this.urlhost}/playerkick`, { num: player.num })
           .then((response) => {
             if (response.data.success) {
               alert(`Player ${player.name} has been kicked from the server`);
@@ -75,7 +78,22 @@ const app = Vue.createApp({
       }
     },
     banPlayer(player) {
-      alert("This feature is not available yet");
+      const msg = `Ban player ${player.name} ?`;
+      if (confirm(msg)) {
+        axios
+          .post(`${this.urlhost}/playerban`, {
+            name: player.name,
+            address: player.address,
+            num: player.num,
+          })
+          .then((response) => {
+            if (response.data.success) {
+              alert(`Player ${player.name} has been banned from the server`);
+            } else {
+              alert(`Player ${player.name} not found`);
+            }
+          });
+      }
     },
   },
 });
