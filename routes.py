@@ -1,6 +1,7 @@
 from flask import jsonify
 from flask import request
 from app import create_app
+from app import db
 from werkzeug.datastructures import MultiDict
 from forms import LoginForm
 from forms import PlayerKickForm
@@ -38,6 +39,8 @@ def login():
             set_access_cookies(
                 response, access_token, max_age=app.config["JWT_ACCESS_TOKEN_EXPIRES"]
             )
+            user.update_last_seen()
+            db.session.commit()
             return response, 200
         else:
             return jsonify(errors="Invalid username or password"), 401

@@ -24,6 +24,9 @@ class User(db.Model):
     def set_password(self, password):
         self.password = generate_password_hash(password, method="sha512")
 
+    def update_last_seen(self):
+        self.last_seen = datetime.utcnow()
+
 
 class RCON:
     def __init__(
