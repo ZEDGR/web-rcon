@@ -19,7 +19,8 @@ def create_app():
     )
     app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
-    app.config["JWT_COOKIE_SECURE"] = True
+    if app.env == "production":
+        app.config["JWT_COOKIE_SECURE"] = True
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
     app.config["JWT_SECRET_KEY"] = os.getenv("FLASK_JWT_SECRET_KEY")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(
