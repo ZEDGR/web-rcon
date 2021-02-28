@@ -32,11 +32,5 @@ class PlayerBanForm(FlaskForm):
     name = TextField("name", [DataRequired()])
     num = IntegerField("num", [DataRequired()])
 
-    # def validate_address(form, field):
-    #     try:
-    #         ipaddress.ip_address(field.data)
-    #     except ValueError:
-    #         raise ValidationError("Invalid Player IP")
-
     class Meta:
         csrf = False
