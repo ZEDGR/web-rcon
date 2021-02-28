@@ -127,8 +127,8 @@ def player_ban():
         player_ban = PlayerBan(username=username, ip=player_ip, banned_by='FMM') 
         db.session.add(player_ban)
         db.session.commit()
+
+        return jsonify({}), 204
  
     return jsonify({"errors": form.errors}), 400
 
-    print(player_ip)
-    return jsonify({}), 204
