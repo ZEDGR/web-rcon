@@ -6,7 +6,6 @@ from werkzeug.datastructures import MultiDict
 from forms import LoginForm
 from forms import PlayerKickForm
 from forms import PlayerBanForm
-import os
 from flask import send_file
 from models import User
 from models import RCON
