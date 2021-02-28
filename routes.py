@@ -57,8 +57,8 @@ def logout():
     return response, 200
 
 
-#@jwt_required()
 @app.route("/players")
+@jwt_required()
 def get_players():
     try:
         rcon = RCON(SERVER_HOST, SERVER_PORT, RCON_PASSWORD)
@@ -87,6 +87,7 @@ def player_kick():
 
 
 @app.route("/playerban", methods=["POST"])
+@jwt_required()
 def player_ban():
     form = PlayerBanForm()
 
