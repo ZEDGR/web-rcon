@@ -123,11 +123,11 @@ class RCON:
             player["num"] = player_parts[0]
             player["score"] = player_parts[1]
             player["ping"] = player_parts[2]
-            guid = player_parts[3]
+            # guid = player_parts[3]
             player["rate"] = player_parts[res_len - 1]
-            qport = player_parts[res_len - 2]
+            # qport = player_parts[res_len - 2]
             player["address"], player["port"] = player_parts[res_len - 3].split(":")
-            lastmsg = player_parts[res_len - 4]
+            # lastmsg = player_parts[res_len - 4]
 
             player["name"] = ""
             for j in range(4, res_len - 4):
