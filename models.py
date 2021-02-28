@@ -28,6 +28,17 @@ class User(db.Model):
         self.last_seen = datetime.utcnow()
 
 
+class PlayerBan(db.Model):
+
+    __tablename__ = "playerban"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120), unique=False, nullable=True)
+    ip = db.Column(db.String(12), unique=True, nullable=False)
+    date_of_ban = db.Column(db.DateTime, default=datetime.utcnow)
+    banned_by = db.Column(db.String(120), unique=False, nullable=False)
+
+
 class RCON:
     def __init__(
         self,
@@ -42,48 +53,6 @@ class RCON:
         self.host = host
         self.port = port
         self.password = password
-
-    # def recv_timeout(self, the_socket, timeout=2):
-    #     # make socket non blocking
-    #     the_socket.setblocking(1)
-
-    #     # total data partwise in an array
-    #     total_data = None;
-
-    #     # beginning time
-    #     begin=time.time()
-    #     while 1:
-    #         # if you got some data, then break after timeout
-    #         if total_data and time.time()-begin > timeout:
-    #             break
-
-    #         # if you got no data at all, wait a little longer, twice the timeout
-    #         elif time.time()-begin > timeout*2:
-    #             break
-
-    #         # recv something
-    #         try:
-    #             data = the_socket.recv(8192)
-    #             if data:
-    #                 print('Data from socket as string: ' + str(data))
-    #                 data_str = data.decode("utf-8", errors="ignore")
-    #                 total_data = total_data + data_str
-    #                 print('Got this from udp socket: ' + data_str)
-
-    #                 if data_str.contains('\n\n'):
-    #                     print('Reached end of reply...')
-    #                     break
-
-    #                 # change the beginning time for measurement
-    #                 begin = time.time()
-    #             else:
-    #                 # sleep for sometime to indicate a gap
-    #                 time.sleep(0.1)
-    #         except:
-    #             pass
-
-    #     # join all parts to make final string
-    #     return total_data
 
     def strip_colors(self, some_name):
         some_name = some_name.replace("^^", "^")
@@ -110,9 +79,7 @@ class RCON:
         cmd = self.packet_prefix + cmd.encode()
         self.socket.sendto(cmd, (self.host, self.port))
         data, addr = self.socket.recvfrom(8192)
-        print("Data from socket as string:", str(data[10:]))
         data_str = data[10:].decode("utf-8", errors="ignore")
-        print("Data after decode:", data_str)
 
         return data_str
 
@@ -124,14 +91,9 @@ class RCON:
         status_str = self.send("status")
         status_str = self.strip_colors(status_str)
 
-        # for char in status_str:
-        #     print(f"{char} {ord(char)}")
-
         player_objects = []
 
-        i = 0
         for some_str in status_str.split("\n"):
-            # print('Line %d - String: %s' % (i, some_str))
             if "map: " in some_str:
                 continue
             elif "num score" in some_str:
@@ -151,7 +113,6 @@ class RCON:
             player_parts = some_str.split(" ")
             res_len = len(player_parts)
             if res_len < 9:
-                print("Error response is incomplete - HANDLE THIS!!!")
                 raise Exception("Error response is incomplete - HANDLE THIS!!!")
 
             player = {}
@@ -172,9 +133,6 @@ class RCON:
                 else:
                     player["name"] = player["name"] + player_parts[j] + " "
 
-            print("Located player line: |" + some_str + "|")
-
-            # i = i + 1
             player_objects.append(player)
 
         return player_objects
