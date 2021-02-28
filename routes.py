@@ -94,6 +94,13 @@ def player_ban():
     if form.validate_on_submit():
         username = form.data.get('username', '')
         player_ip = form.data['player_ip']
+
+        ban_rec = PlayerBan.query.filter_by(ip=player_ip).first()
+
+        if ban_rec:
+            print('Player IP is already banned in database! Check IPtables conf')
+            return jsonify({'error': 'Ban command failed on system level'}), 500
+
         print('Will BAN IP: ' + player_ip + ' - User: ' + username)
         proc = subprocess.run(
             [
