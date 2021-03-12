@@ -14,9 +14,8 @@ const app = Vue.createApp({
   },
   created() {
     axios.defaults.withCredentials = true;
-    axios.defaults.headers.post["X-CSRF-TOKEN"] = Cookies.get(
-      "csrf_access_token"
-    );
+    axios.defaults.xsrfCookieName = "csrf_access_token";
+    axios.defaults.xsrfHeaderName = "X-CSRF-Token";
     axios.interceptors.response.use(
       (response) => {
         return response;
