@@ -49,9 +49,11 @@ class RCON:
         port: int,
         password: str,
         packet_prefix: bytes = b"\xff\xff\xff\xff",
+        socket_seconds_timeout: int = 1,
     ):
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # dgram is udp
+        self.socket.settimeout(socket_seconds_timeout)
         self.packet_prefix = packet_prefix
         self.host = host
         self.port = port
@@ -77,21 +79,34 @@ class RCON:
         string = re.sub(pattern, char, string)
         return string
 
-    def send(self, cmd):
+    def _send(self, cmd, buffer_size):
+        data = b""
+        self.socket.sendto(cmd, (self.host, self.port))
+
+        while True:
+            try:
+                data, addr = self.socket.recvfrom(buffer_size)
+            except socket.timeout:
+                break
+            else:
+                yield data
+
+    def _send_command(self, cmd, buffer_size=8192):
+        data = b""
         cmd = f"rcon {self.password} {cmd}"
         cmd = self.packet_prefix + cmd.encode()
-        self.socket.sendto(cmd, (self.host, self.port))
-        data, addr = self.socket.recvfrom(8192)
-        data_str = data[10:].decode("utf-8", errors="ignore")
 
-        return data_str
+        response = self._send(cmd, buffer_size)
+        for chunk in response:
+            data += chunk.replace(b"print", b"")  # remove print at the beginning
+        return data.decode("utf-8", errors="ignore")
 
     def kick(self, player_num):
-        response = self.send(f"clientkick {player_num}")
+        response = self._send_command(f"clientkick {player_num}")
         return "EXE_PLAYERKICKED" in response
 
     def status(self):
-        status_str = self.send("status")
+        status_str = self._send_command("status")
         status_str = self.strip_colors(status_str)
 
         player_objects = []
