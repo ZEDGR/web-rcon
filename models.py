@@ -81,26 +81,31 @@ class RCON:
 
     def _send(self, cmd, buffer_size):
         data = b""
+        cmd = self.packet_prefix + cmd
         self.socket.sendto(cmd, (self.host, self.port))
 
         while True:
             try:
-                data, addr = self.socket.recvfrom(buffer_size)
+                data = self.socket.recv(buffer_size)
+                if not data.startswith(self.packet_prefix):
+                    raise ValueError(data)
             except socket.timeout:
                 break
             else:
-                yield data
+                yield data.removeprefix(self.packet_prefix)
 
     def _send_command(self, cmd, buffer_size=8192):
-        data = b""
+        data = []
         cmd = f"rcon {self.password} {cmd}"
-        cmd = self.packet_prefix + cmd.encode()
+        cmd = cmd.encode()
 
         response = self._send(cmd, buffer_size)
         for chunk in response:
-            data += chunk
-        # remove "print" at the beginning
-        return data.decode("utf-8", errors="ignore").removeprefix("print\n")
+            # remove "print" at the beginning
+            chunk = chunk.decode("utf-8", errors="ignore").removeprefix("print\n")
+            data.append(chunk)
+
+        return "".join(data)
 
     def kick(self, player_num):
         response = self._send_command(f"clientkick {player_num}")
