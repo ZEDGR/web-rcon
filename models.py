@@ -98,8 +98,9 @@ class RCON:
 
         response = self._send(cmd, buffer_size)
         for chunk in response:
-            data += chunk.replace(b"print", b"")  # remove print at the beginning
-        return data.decode("utf-8", errors="ignore")
+            data += chunk
+        # remove "print" at the beginning
+        return data.decode("utf-8", errors="ignore").removeprefix("print\n")
 
     def kick(self, player_num):
         response = self._send_command(f"clientkick {player_num}")
