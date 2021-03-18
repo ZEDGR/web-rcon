@@ -166,6 +166,30 @@ def remove_player_ban():
     if form.validate_on_submit():
         ban_ip = form.ip.data
         ban_record = PlayerBan.query.filter_by(ip=ban_ip).first_or_404()
+
+        proc = subprocess.run(
+            [
+                "sudo",
+                "iptables",
+                "-D",
+                "DOCKER-USER",
+                "-s",
+                ban_record.ip,
+                "-j",
+                "DROP",
+                "-m",
+                "comment",
+                "--comment",
+                f"CoD2 Server: {ban_record.name}",
+            ],
+            stdout=subprocess.PIPE,
+        )
+
+        print(proc.stdout)
+        if proc.returncode != 0:
+            print("Failed to remove ban! - Improve logging here")
+            return jsonify(error="Failed to remove ban"), 500
+
         db.session.delete(ban_record)
         db.session.commit()
         return jsonify(success=True), 200
