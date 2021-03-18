@@ -49,9 +49,11 @@ class RCON:
         port: int,
         password: str,
         packet_prefix: bytes = b"\xff\xff\xff\xff",
+        socket_seconds_timeout: int = 1,
     ):
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # dgram is udp
+        self.socket.settimeout(socket_seconds_timeout)
         self.packet_prefix = packet_prefix
         self.host = host
         self.port = port
@@ -77,21 +79,40 @@ class RCON:
         string = re.sub(pattern, char, string)
         return string
 
-    def send(self, cmd):
-        cmd = f"rcon {self.password} {cmd}"
-        cmd = self.packet_prefix + cmd.encode()
+    def _send(self, cmd, buffer_size):
+        data = b""
+        cmd = self.packet_prefix + cmd
         self.socket.sendto(cmd, (self.host, self.port))
-        data, addr = self.socket.recvfrom(8192)
-        data_str = data[10:].decode("utf-8", errors="ignore")
 
-        return data_str
+        while True:
+            try:
+                data = self.socket.recv(buffer_size)
+                if not data.startswith(self.packet_prefix):
+                    raise ValueError(data)
+            except socket.timeout:
+                break
+            else:
+                yield data.removeprefix(self.packet_prefix)
+
+    def _send_command(self, cmd, buffer_size=8192):
+        data = []
+        cmd = f"rcon {self.password} {cmd}"
+        cmd = cmd.encode()
+
+        response = self._send(cmd, buffer_size)
+        for chunk in response:
+            # remove "print" at the beginning
+            chunk = chunk.decode("utf-8", errors="ignore").removeprefix("print\n")
+            data.append(chunk)
+
+        return "".join(data)
 
     def kick(self, player_num):
-        response = self.send(f"clientkick {player_num}")
+        response = self._send_command(f"clientkick {player_num}")
         return "EXE_PLAYERKICKED" in response
 
     def status(self):
-        status_str = self.send("status")
+        status_str = self._send_command("status")
         status_str = self.strip_colors(status_str)
 
         player_objects = []
