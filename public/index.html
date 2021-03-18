@@ -59,12 +59,23 @@
                     </div>
                     <div class="row" v-if="authenticated">
                         <div class="col-12 clearfix">
-                            <button class="btn btn-light mb-2 mr-2" title="Refresh Player List" @click="getPlayers()">Refresh <i class="fa fa-redo-alt"></i></button>
+                            <button class="btn btn-light mb-2 mr-2" v-if="selectedTab === 'banList'" title="Show Player List" @click="changeTab('playerList')">
+                                Show Player List <i class="fa fa-sync-alt"></i>
+                            </button>
+                            <button class="btn btn-light mb-2 mr-2" v-if="selectedTab === 'playerList'" title="Show Ban List" @click="changeTab('banList')">
+                                Show Ban List <i class="fa fa-sync-alt"></i>
+                            </button>
+                            <button class="btn btn-light mb-2 mr-2" v-if="selectedTab === 'playerList'" title="Refresh Player List" @click="getPlayers()">
+                                Refresh Player List <i class="fa fa-redo-alt"></i>
+                            </button>
+                            <button class="btn btn-light mb-2 mr-2" v-if="selectedTab === 'banList'" title="Refresh Ban List" @click="getBanList()">
+                                Refresh Ban List <i class="fa fa-redo-alt"></i>
+                            </button>
                             <button class="btn btn-light mb-2" title="Logout" @click="logout()">Logout <i class="fas fa-sign-out-alt"></i></button>
                         </div>
                     </div>
                 </header>
-                <div class="row" v-if="authenticated">
+                <div class="row" v-if="authenticated && selectedTab === 'playerList'">
                     <div class="col-12">
                         <table class="table table-bordered table-striped table-hover text-center">
                             <thead class="thead-light">
@@ -95,6 +106,35 @@
                             <tbody v-else>
                                 <tr>
                                     <td colspan="9">No Players Online</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row" v-else-if="authenticated && selectedTab === 'banList'">
+                    <div class="col-12">
+                        <table class="table table-bordered table-striped table-hover text-center">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Actions</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">IP</th>
+                                    <th scope="col" class="d-none d-sm-table-cell">Banned By</th>
+                                    <th scope="col" class="d-none d-sm-table-cell">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody v-if="banList.length">
+                                <tr v-for="banRecord in banList" :key="banRecord.id">
+                                    <td><a href="#" class="text-red" title="Remove Ban" @click="removeBan(banRecord)"><i class="fas fa-minus-square"></i></a></td>
+                                    <td scope="row">{{ banRecord.name }}</td>
+                                    <td>{{ banRecord.ip }}</td>
+                                    <td class="d-none d-sm-table-cell">{{ banRecord.banned_by }}</td>
+                                    <td class="d-none d-sm-table-cell">{{ banRecord.date_of_ban }}</td>
+                                </tr>
+                            </tbody>
+                            <tbody v-else>
+                                <tr>
+                                    <td colspan="9">No Bans</td>
                                 </tr>
                             </tbody>
                         </table>

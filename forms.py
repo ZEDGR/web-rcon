@@ -32,3 +32,10 @@ class PlayerBanForm(FlaskForm):
 
     class Meta:
         csrf = False
+
+
+class PlayerBanRecordForm(FlaskForm):
+    ip = TextField("ip", [DataRequired(), IPAddress()])
+
+    class Meta:
+        csrf = False

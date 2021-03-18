@@ -6,6 +6,7 @@ from werkzeug.datastructures import MultiDict
 from forms import LoginForm
 from forms import PlayerKickForm
 from forms import PlayerBanForm
+from forms import PlayerBanRecordForm
 from flask import send_file
 from models import User
 from models import RCON
@@ -138,3 +139,35 @@ def player_ban():
         return jsonify(success=True), 200
 
     return jsonify(errors=form.errors), 400
+
+
+@app.route("/banlist")
+@jwt_required()
+def get_ban_list():
+    ban_list = []
+    for ban_record in PlayerBan.query.all():
+        ban_list.append(
+            {
+                "id": ban_record.id,
+                "name": ban_record.name,
+                "ip": ban_record.ip,
+                "date_of_ban": ban_record.date_of_ban.strftime("%Y-%m-%d"),
+                "banned_by": ban_record.banned_by,
+            }
+        )
+    return jsonify(banList=ban_list), 200
+
+
+@app.route("/removeban", methods=["POST"])
+@jwt_required()
+def remove_player_ban():
+    form = PlayerBanRecordForm()
+
+    if form.validate_on_submit():
+        ban_ip = form.ip.data
+        ban_record = PlayerBan.query.filter_by(ip=ban_ip).first_or_404()
+        db.session.delete(ban_record)
+        db.session.commit()
+        return jsonify(success=True), 200
+    else:
+        return jsonify(errors=form.errors), 400

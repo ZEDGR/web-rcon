@@ -10,6 +10,8 @@ const app = Vue.createApp({
       password: "",
       authenticated: Cookies.get("csrf_access_token") ? true : false,
       playerList: [],
+      banList: [],
+      selectedTab: "playerList",
     };
   },
   created() {
@@ -32,12 +34,14 @@ const app = Vue.createApp({
     );
     if (this.authenticated) {
       this.getPlayers();
+      this.getBanList();
     }
   },
   watch: {
     authenticated() {
       if (this.authenticated) {
         this.getPlayers();
+        this.getBanList();
       }
     },
   },
@@ -95,6 +99,31 @@ const app = Vue.createApp({
             }
           });
       }
+    },
+    getBanList() {
+      axios.get(`${this.urlhost}/banlist`).then((response) => {
+        this.banList = response.data.banList;
+      });
+    },
+    removeBan(banRecord) {
+      const msg = `Remove Ban for ${banRecord.name}`;
+      if (confirm(msg)) {
+        axios
+          .post(`${this.urlhost}/removeban`, {
+            ip: banRecord.ip,
+          })
+          .then((response) => {
+            if (response.data.success) {
+              alert(`Ban for ${banRecord.name} has been removed`);
+              this.getBanList();
+            } else {
+              alert(`Ban not found for ${banRecord.name}`);
+            }
+          });
+      }
+    },
+    changeTab(tabName) {
+      this.selectedTab = tabName;
     },
   },
 });
