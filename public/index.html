@@ -125,7 +125,7 @@
                             </thead>
                             <tbody v-if="banList.length">
                                 <tr v-for="banRecord in banList" :key="banRecord.id">
-                                    <td><a href="#" class="text-red" title="Remove Ban" @click="removeBan(banRecord)"><i class="fas fa-minus-square"></i></a></td>
+                                    <td><a href="#" class="text-danger" title="Remove Ban" @click="removeBan(banRecord)"><i class="fas fa-minus-square"></i></a></td>
                                     <td scope="row">{{ banRecord.name }}</td>
                                     <td>{{ banRecord.ip }}</td>
                                     <td class="d-none d-sm-table-cell">{{ banRecord.banned_by }}</td>
